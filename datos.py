@@ -31,6 +31,11 @@ def almacenardb():
 		f = urllib.request.urlopen(url)
 		s = BeautifulSoup(f, "html.parser")
 		titulo = s.find("h1", class_="titulo titulo--articulo")
+		dificultad = s.find("span", class_="property dificultad")
+		num_comensales = s.find("span", class_="property comensales")
+		tiempo_preparacion = s.find("span", class_="property duracion")
+		autor = s.find("div", class_="nombre autor").find("a").get_text(strip=True)
+		fecha = s.find("span", class_="date_publish")
 
 		conn.execute(
 			"""INSERT INTO RECETAS
