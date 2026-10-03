@@ -1,5 +1,8 @@
 from tkinter import *
 
+from datos import *
+
+
 def main():
 
     def prueba():
@@ -11,7 +14,7 @@ def main():
     menubar = Menu(root)
 
     databar = Menu(menubar, tearoff=0)
-    databar.add_command(label="Cargar", command=prueba)
+    databar.add_command(label="Cargar", command=cargar)
     databar.add_separator()
     databar.add_command(label="Salir", command=root.destroy)
     menubar.add_cascade(label="Datos", menu=databar)

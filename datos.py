@@ -1,8 +1,10 @@
 from tkinter import messagebox
+
 import sqlite3
+
 from bs4 import BeautifulSoup
-import urllib
-import urljoin
+
+import urllib.request
 
 def cargar():
 	respuesta = messagebox.askyesno(
@@ -19,7 +21,7 @@ def almacenardb():
 	conn.execute('DROP TABLE IF EXISTS RECETAS')
 	conn.execute('''CREATE TABLE RECETAS
 	(titulo TEXT NOT NULL,
-	dificultad TEXT NOT NULL CHECK(DIFICULTAD IN ('Muy baja', 'Baja', 'Media', 'Alta')),
+	dificultad TEXT,
 	num_comensales INTEGER,
 	tiempo_preparacion TEXT,
 	autor TEXT,
@@ -30,12 +32,35 @@ def almacenardb():
 		url = receta.find("a")["href"]
 		f = urllib.request.urlopen(url)
 		s = BeautifulSoup(f, "html.parser")
-		titulo = s.find("h1", class_="titulo titulo--articulo")
-		dificultad = s.find("span", class_="property dificultad")
-		num_comensales = s.find("span", class_="property comensales")
-		tiempo_preparacion = s.find("span", class_="property duracion")
-		autor = s.find("div", class_="nombre autor").find("a").get_text(strip=True)
-		fecha = s.find("span", class_="date_publish")
+		titulo = s.find("h1", class_="titulo titulo--articulo").get_text(strip=True)
+
+		div_dificultad = s.find("span", class_="property dificultad")
+		if div_dificultad:
+			dificultad = div_dificultad.get_text(strip=True)
+		else:
+			dificultad = None
+
+		div_num_comensales = s.find("span", class_="property comensales")
+		if div_num_comensales:
+			num_comensales = div_num_comensales.get_text(strip=True)
+			num_str = num_comensales.split()[0]
+			num_comensales = int(num_str)
+		else:
+			num_comensales = None
+
+		div_tiempo_preparacion = s.find("span", class_="property duracion")
+		if div_tiempo_preparacion:
+			tiempo_preparacion = div_tiempo_preparacion.get_text(strip=True)
+		else:
+			tiempo_preparacion = None
+
+		div_autor = s.find("div", class_="nombre_autor")
+		if div_autor and div_autor.find("a"):
+			autor = div_autor.find("a").get_text(strip=True)
+		else:
+			autor = None
+
+		fecha = s.find("span", class_="date_publish").get_text(strip=True)
 
 		conn.execute(
 			"""INSERT INTO RECETAS
